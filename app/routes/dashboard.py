@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify
 from app.models.despesa import Despesa
 from app.models.receita import Receita
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 
 dashboard_bp = Blueprint(
@@ -10,10 +11,13 @@ dashboard_bp = Blueprint(
 
 
 @dashboard_bp.route(
-    "/dashboard/<int:usuario_id>",
+    "/dashboard",
     methods=["GET"]
 )
-def dashboard(usuario_id):
+@jwt_required()
+def dashboard():
+
+    usuario_id = get_jwt_identity()
 
 
     receitas = Receita.query.filter_by(
@@ -24,7 +28,6 @@ def dashboard(usuario_id):
     despesas = Despesa.query.filter_by(
         usuario_id=usuario_id
     ).all()
-
 
 
     total_receitas = sum(
@@ -53,10 +56,7 @@ def dashboard(usuario_id):
     )
 
 
-    saldo = (
-        total_receitas -
-        total_despesas
-    )
+    saldo = total_receitas - total_despesas
 
 
     return jsonify(

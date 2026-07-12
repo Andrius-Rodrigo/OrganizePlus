@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from app.extensions import db
 from app.models.despesa import Despesa
 from datetime import datetime
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 
 despesas_bp = Blueprint(
@@ -15,6 +16,7 @@ despesas_bp = Blueprint(
     "/despesas",
     methods=["POST"]
 )
+@jwt_required()
 def criar_despesa():
 
     dados = request.json
@@ -29,7 +31,7 @@ def criar_despesa():
             dados["data"],
             "%Y-%m-%d"
         ).date(),
-        usuario_id=dados["usuario_id"]
+        usuario_id=get_jwt_identity()
     )
 
 
@@ -51,9 +53,16 @@ def criar_despesa():
     "/despesas",
     methods=["GET"]
 )
+@jwt_required()
 def listar_despesas():
 
-    despesas = Despesa.query.all()
+    usuario_id = get_jwt_identity()
+
+
+    despesas = Despesa.query.filter_by(
+        usuario_id=usuario_id
+    ).all()
+
 
     resultado = []
 
@@ -65,6 +74,7 @@ def listar_despesas():
                 "id": despesa.id,
                 "descricao": despesa.descricao,
                 "valor": despesa.valor,
+                "tipo": despesa.tipo,
                 "pago": despesa.pago,
                 "data": str(despesa.data),
                 "usuario_id": despesa.usuario_id
