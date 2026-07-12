@@ -17,32 +17,26 @@ function Dashboard(){
 
     async function carregarDashboard(){
 
-        try{
+    console.log(
+        "TOKEN:",
+        localStorage.getItem("token")
+    );
 
-            const resposta = await api.get(
-                "/dashboard"
-            );
+    try{
 
-            console.log("Resposta dashboard:", resposta.data);
-                
-            setDados(
-                resposta.data
-            );
+        const resposta = await api.get(
+            "/dashboard/resumo"
+        );
 
-        }
-    catch(error){
+        setDados(resposta.data);
 
-        console.log(
-            "Erro dashboard:",
-                error.response
-            );
+    }catch(error){
 
-
-
-        }
+        console.log(error.response.data);
 
     }
 
+}
 
 
     return(

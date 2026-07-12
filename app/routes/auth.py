@@ -51,8 +51,10 @@ def login():
 
     return jsonify(
         {
-            "mensagem":"Login realizado",
-            "token":token,
-            "usuario_id":usuario.id
+            "mensagem": "Login realizado",
+            "access_token": create_access_token(
+                identity=str(usuario.id)
+            ),
+            "usuario_id": usuario.id
         }
     )

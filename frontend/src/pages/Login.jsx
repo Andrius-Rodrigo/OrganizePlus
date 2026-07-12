@@ -9,37 +9,50 @@ function Login(){
     const [erro,setErro] = useState("");
 
 
-    async function entrar(){
+    async function entrar() {
 
-        try{
+    try {
 
-            const resposta = await api.post(
-                "/login",
-                {
-                    email: email,
-                    senha: senha
-                }
-            );
+        const resposta = await api.post(
+            "/login",
+            {
+                email: email,
+                senha: senha
+            }
+        );
 
+        console.log("RESPOSTA:", resposta);
+        console.log("DADOS:", resposta.data);
+        console.log("TOKEN:", resposta.data.access_token);
 
-            localStorage.setItem(
-                "token",
-                resposta.data.access_token
-            );
+        localStorage.setItem(
+            "token",
+            resposta.data.access_token
+        );
 
+        console.log(
+            "SALVO:",
+            localStorage.getItem("token")
+        );
 
-            window.location.href="/dashboard";
-
-        }
-        catch(error){
-
-            setErro(
-                "Usuário ou senha inválidos"
-            );
-
-        }
+        window.location.href = "/dashboard";
 
     }
+    catch(error){
+
+        console.log(error);
+
+        if(error.response){
+            console.log(error.response.data);
+        }
+
+        setErro(
+            "Usuário ou senha inválidos"
+        );
+
+    }
+
+}
 
 
     return (
