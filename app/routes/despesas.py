@@ -71,17 +71,21 @@ def listar_despesas():
     for despesa in despesas:
 
         resultado.append(
-        {
-            "id": despesa.id,
-            "descricao": despesa.descricao,
-            "valor": despesa.valor,
-            "tipo": despesa.tipo,
-            "pago": despesa.pago,
-            "data": str(despesa.data),
-            "usuario_id": despesa.usuario_id,
-            "categoria_id": despesa.categoria_id
-        }
-    )
+    {
+        "id": despesa.id,
+        "descricao": despesa.descricao,
+        "valor": despesa.valor,
+        "tipo": despesa.tipo,
+        "pago": despesa.pago,
+        "data": str(despesa.data),
+        "usuario_id": despesa.usuario_id,
+
+        "categoria": {
+            "id": despesa.categoria.id,
+            "nome": despesa.categoria.nome
+        } if despesa.categoria else None
+    }
+)
 
 
     return jsonify(resultado)

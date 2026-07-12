@@ -1,7 +1,10 @@
 from flask import Blueprint, jsonify
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from app.extensions import db
 from app.models.despesa import Despesa
 from app.models.receita import Receita
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from sqlalchemy import func
+from app.models.categoria import Categoria
 
 
 dashboard_bp = Blueprint(
@@ -11,11 +14,11 @@ dashboard_bp = Blueprint(
 
 
 @dashboard_bp.route(
-    "/dashboard",
+    "/dashboard/resumo",
     methods=["GET"]
 )
 @jwt_required()
-def dashboard():
+def resumo():
 
     usuario_id = get_jwt_identity()
 
@@ -31,28 +34,12 @@ def dashboard():
 
 
     total_receitas = sum(
-        receita.valor
-        for receita in receitas
+        r.valor for r in receitas
     )
 
 
     total_despesas = sum(
-        despesa.valor
-        for despesa in despesas
-    )
-
-
-    despesas_pagas = sum(
-        despesa.valor
-        for despesa in despesas
-        if despesa.pago
-    )
-
-
-    despesas_pendentes = sum(
-        despesa.valor
-        for despesa in despesas
-        if not despesa.pago
+        d.valor for d in despesas
     )
 
 
@@ -61,11 +48,45 @@ def dashboard():
 
     return jsonify(
         {
-            "usuario_id": usuario_id,
-            "receitas": total_receitas,
-            "despesas": total_despesas,
-            "saldo": saldo,
-            "despesas_pagas": despesas_pagas,
-            "despesas_pendentes": despesas_pendentes
+            "total_receitas": total_receitas,
+            "total_despesas": total_despesas,
+            "saldo": saldo
         }
     )
+
+@dashboard_bp.route(
+    "/dashboard/categorias",
+    methods=["GET"]
+)
+@jwt_required()
+def gastos_categoria():
+
+    usuario_id = get_jwt_identity()
+
+
+    resultado = db.session.query(
+        Categoria.nome,
+        func.sum(Despesa.valor)
+    ).join(
+        Despesa,
+        Categoria.id == Despesa.categoria_id
+    ).filter(
+        Despesa.usuario_id == usuario_id
+    ).group_by(
+        Categoria.nome
+    ).all()
+
+
+    dados = []
+
+    for categoria, total in resultado:
+
+        dados.append(
+            {
+                "categoria": categoria,
+                "total": total
+            }
+        )
+
+
+    return jsonify(dados)

@@ -70,14 +70,19 @@ def listar_receitas():
     for receita in receitas:
 
         resultado.append(
-            {
-                "id": receita.id,
-                "descricao": receita.descricao,
-                "valor": receita.valor,
-                "tipo": receita.tipo,
-                "data": str(receita.data)
-            }
-        )
+    {
+        "id": receita.id,
+        "descricao": receita.descricao,
+        "valor": receita.valor,
+        "tipo": receita.tipo,
+        "data": str(receita.data),
+
+        "categoria": {
+            "id": receita.categoria.id,
+            "nome": receita.categoria.nome
+        } if receita.categoria else None
+    }
+)
 
 
     return jsonify(resultado)
