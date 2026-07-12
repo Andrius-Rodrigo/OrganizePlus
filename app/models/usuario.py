@@ -37,8 +37,14 @@ class Usuario(db.Model):
     )
 
 
-    transacoes = db.relationship(
-        "Transacao",
+    despesas = db.relationship(
+        "Despesa",
         backref="usuario",
         lazy=True
+    )
+    
+    receitas = db.relationship(
+    "Receita",
+    backref="usuario",
+    lazy=True
     )
