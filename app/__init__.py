@@ -27,7 +27,15 @@ def create_app():
         db
     )
 
-    cors.init_app(app)
+    cors.init_app(
+    app,
+        resources={
+            r"/*": {
+                "origins": "http://localhost:5173"
+            }
+        },
+        supports_credentials=True
+    )
     jwt.init_app(app)
     app.register_blueprint(
     usuarios_bp
