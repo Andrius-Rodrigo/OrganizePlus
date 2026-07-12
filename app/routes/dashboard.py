@@ -5,6 +5,7 @@ from app.models.despesa import Despesa
 from app.models.receita import Receita
 from sqlalchemy import func
 from app.models.categoria import Categoria
+from sqlalchemy.sql import extract
 
 
 dashboard_bp = Blueprint(
@@ -90,3 +91,108 @@ def gastos_categoria():
 
 
     return jsonify(dados)
+
+@dashboard_bp.route(
+    "/dashboard/evolucao",
+    methods=["GET"]
+)
+@jwt_required()
+def evolucao():
+
+    usuario_id = get_jwt_identity()
+
+
+    receitas = db.session.query(
+        extract(
+            "month",
+            Receita.data
+        ).label("mes"),
+        func.sum(
+            Receita.valor
+        )
+    ).filter(
+        Receita.usuario_id == usuario_id
+    ).group_by(
+        extract(
+            "month",
+            Receita.data
+        )
+    ).all()
+
+
+    despesas = db.session.query(
+        extract(
+            "month",
+            Despesa.data
+        ).label("mes"),
+        func.sum(
+            Despesa.valor
+        )
+    ).filter(
+        Despesa.usuario_id == usuario_id
+    ).group_by(
+        extract(
+            "month",
+            Despesa.data
+        )
+    ).all()
+
+
+    dados = {}
+
+
+    for mes, valor in receitas:
+
+        dados[int(mes)] = {
+            "receitas": valor,
+            "despesas": 0
+        }
+
+
+    for mes, valor in despesas:
+
+        mes = int(mes)
+
+        if mes not in dados:
+            dados[mes] = {
+                "receitas": 0,
+                "despesas": valor
+            }
+
+        else:
+            dados[mes]["despesas"] = valor
+
+
+
+    resultado = []
+
+
+    meses = {
+        1:"Janeiro",
+        2:"Fevereiro",
+        3:"Março",
+        4:"Abril",
+        5:"Maio",
+        6:"Junho",
+        7:"Julho",
+        8:"Agosto",
+        9:"Setembro",
+        10:"Outubro",
+        11:"Novembro",
+        12:"Dezembro"
+    }
+
+
+    for mes, valores in dados.items():
+
+        resultado.append(
+            {
+                "mes": meses[mes],
+                "receitas": valores["receitas"],
+                "despesas": valores["despesas"],
+                "saldo": valores["receitas"] - valores["despesas"]
+            }
+        )
+
+
+    return jsonify(resultado)

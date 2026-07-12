@@ -146,3 +146,72 @@ def editar_despesa(id):
         }
     )
 
+@despesas_bp.route(
+    "/despesas/<int:id>/pagar",
+    methods=["PATCH"]
+)
+@jwt_required()
+def marcar_pago(id):
+
+    usuario_id = get_jwt_identity()
+
+    despesa = Despesa.query.filter_by(
+        id=id,
+        usuario_id=usuario_id
+    ).first()
+
+    if not despesa:
+        return jsonify(
+            {
+                "erro":"Despesa não encontrada"
+            }
+        ),404
+
+    despesa.pago = True
+
+    db.session.commit()
+
+    return jsonify(
+        {
+            "mensagem":"Despesa marcada como paga",
+            "id":despesa.id,
+            "pago":despesa.pago
+        }
+    )
+
+
+@despesas_bp.route(
+    "/despesas/<int:id>",
+    methods=["DELETE"]
+)
+@jwt_required()
+def excluir_despesa(id):
+
+    usuario_id = get_jwt_identity()
+
+
+    despesa = Despesa.query.filter_by(
+        id=id,
+        usuario_id=usuario_id
+    ).first()
+
+
+    if not despesa:
+        return jsonify(
+            {
+                "erro":"Despesa não encontrada"
+            }
+        ),404
+
+
+    db.session.delete(despesa)
+
+    db.session.commit()
+
+
+    return jsonify(
+        {
+            "mensagem":"Despesa excluída",
+            "id":id
+        }
+    )

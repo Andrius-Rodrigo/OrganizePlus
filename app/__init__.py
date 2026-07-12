@@ -1,6 +1,7 @@
 from flask import Flask
 from .extensions import db, migrate, cors, jwt
 from .config import Config
+from .routes import usuarios_bp, despesas_bp
 from .models import Usuario, Categoria, Despesa
 from .routes import (
     usuarios_bp,
@@ -51,6 +52,7 @@ def create_app():
     app.register_blueprint(
     categorias_bp
     )
+
 
 
 

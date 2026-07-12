@@ -35,6 +35,12 @@ class Receita(db.Model):
         nullable=False
     )
 
+    recebido = db.Column(
+        db.Boolean,
+        default=False,
+        nullable=False
+    )
+
 
     usuario_id = db.Column(
         db.Integer,

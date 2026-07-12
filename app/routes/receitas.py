@@ -215,3 +215,44 @@ def excluir_receita(id):
             "mensagem":"Receita excluída"
         }
     )
+
+
+# Marcar receita como recebida
+@receitas_bp.route(
+    "/receitas/<int:id>/receber",
+    methods=["PATCH"]
+)
+@jwt_required()
+def marcar_recebida(id):
+
+    usuario_id = get_jwt_identity()
+
+
+    receita = Receita.query.filter_by(
+        id=id,
+        usuario_id=usuario_id
+    ).first()
+
+
+    if not receita:
+
+        return jsonify(
+            {
+                "erro":"Receita não encontrada"
+            }
+        ),404
+
+
+    receita.recebido = True
+
+
+    db.session.commit()
+
+
+    return jsonify(
+        {
+            "mensagem":"Receita marcada como recebida",
+            "id":receita.id,
+            "recebido":receita.recebido
+        }
+    )
