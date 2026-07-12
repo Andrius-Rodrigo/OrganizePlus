@@ -2,6 +2,7 @@ from flask import Flask
 
 from .config import Config
 from .extensions import db, migrate, cors
+from .models import Usuario, Categoria, Despesa
 
 
 def create_app():
