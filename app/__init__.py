@@ -3,8 +3,12 @@ from flask import Flask
 from .config import Config
 from .extensions import db, migrate, cors
 from .models import Usuario, Categoria, Despesa
-from .routes import usuarios_bp, despesas_bp, receitas_bp
-
+from .routes import (
+    usuarios_bp,
+    despesas_bp,
+    receitas_bp,
+    dashboard_bp
+)
 def create_app():
 
     app = Flask(__name__)
@@ -32,6 +36,10 @@ def create_app():
 
     app.register_blueprint(
     receitas_bp
+    )
+    
+    app.register_blueprint(
+    dashboard_bp
     )
 
 
