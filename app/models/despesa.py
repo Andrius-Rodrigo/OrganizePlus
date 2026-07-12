@@ -51,5 +51,6 @@ class Despesa(db.Model):
 
     categoria_id = db.Column(
         db.Integer,
-        db.ForeignKey("categorias.id")
+        db.ForeignKey("categorias.id"),
+        nullable=True
     )

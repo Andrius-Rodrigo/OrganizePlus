@@ -41,3 +41,8 @@ class Receita(db.Model):
         db.ForeignKey("usuarios.id"),
         nullable=False
     )
+    categoria_id = db.Column(
+        db.Integer,
+        db.ForeignKey("categorias.id"),
+        nullable=True
+    )

@@ -48,3 +48,9 @@ class Usuario(db.Model):
     backref="usuario",
     lazy=True
     )
+
+    categorias = db.relationship(
+    "Categoria",
+    backref="usuario",
+    lazy=True
+    )

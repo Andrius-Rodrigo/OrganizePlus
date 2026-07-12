@@ -26,6 +26,7 @@ def criar_despesa():
         descricao=dados["descricao"],
         valor=dados["valor"],
         tipo="Despesa",
+        categoria_id=dados.get("categoria_id"),
         pago=dados.get("pago", False),
         data=datetime.strptime(
             dados["data"],
@@ -70,16 +71,74 @@ def listar_despesas():
     for despesa in despesas:
 
         resultado.append(
-            {
-                "id": despesa.id,
-                "descricao": despesa.descricao,
-                "valor": despesa.valor,
-                "tipo": despesa.tipo,
-                "pago": despesa.pago,
-                "data": str(despesa.data),
-                "usuario_id": despesa.usuario_id
-            }
-        )
+        {
+            "id": despesa.id,
+            "descricao": despesa.descricao,
+            "valor": despesa.valor,
+            "tipo": despesa.tipo,
+            "pago": despesa.pago,
+            "data": str(despesa.data),
+            "usuario_id": despesa.usuario_id,
+            "categoria_id": despesa.categoria_id
+        }
+    )
 
 
     return jsonify(resultado)
+
+
+@despesas_bp.route(
+    "/despesas/<int:id>",
+    methods=["PUT"]
+)
+@jwt_required()
+def editar_despesa(id):
+
+    usuario_id = get_jwt_identity()
+
+
+    despesa = Despesa.query.filter_by(
+        id=id,
+        usuario_id=usuario_id
+    ).first()
+
+
+    if not despesa:
+
+        return jsonify(
+            {
+                "erro":"Despesa não encontrada"
+            }
+        ),404
+
+
+    dados = request.json
+
+
+    despesa.descricao = dados.get(
+        "descricao",
+        despesa.descricao
+    )
+
+
+    despesa.valor = dados.get(
+        "valor",
+        despesa.valor
+    )
+
+
+    despesa.pago = dados.get(
+        "pago",
+        despesa.pago
+    )
+
+
+    db.session.commit()
+
+
+    return jsonify(
+        {
+            "mensagem":"Despesa atualizada"
+        }
+    )
+

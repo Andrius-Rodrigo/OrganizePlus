@@ -7,7 +7,8 @@ from .routes import (
     despesas_bp,
     receitas_bp,
     dashboard_bp,
-    auth_bp
+    auth_bp,
+    categorias_bp
 )
 def create_app():
 
@@ -45,6 +46,10 @@ def create_app():
 
     app.register_blueprint(
     auth_bp
+    )
+
+    app.register_blueprint(
+    categorias_bp
     )
 
 
