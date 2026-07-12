@@ -1,13 +1,13 @@
 from flask import Flask
-
+from .extensions import db, migrate, cors, jwt
 from .config import Config
-from .extensions import db, migrate, cors
 from .models import Usuario, Categoria, Despesa
 from .routes import (
     usuarios_bp,
     despesas_bp,
     receitas_bp,
-    dashboard_bp
+    dashboard_bp,
+    auth_bp
 )
 def create_app():
 
@@ -26,6 +26,7 @@ def create_app():
     )
 
     cors.init_app(app)
+    jwt.init_app(app)
     app.register_blueprint(
     usuarios_bp
     )
@@ -40,6 +41,10 @@ def create_app():
     
     app.register_blueprint(
     dashboard_bp
+    )
+
+    app.register_blueprint(
+    auth_bp
     )
 
 
