@@ -1,81 +1,25 @@
-import {
-    PieChart,
-    Pie,
-    Cell,
-    Tooltip,
-    ResponsiveContainer,
-    Legend
-} from "recharts";
-
-const cores = [
-    "#2563EB",
-    "#22C55E",
-    "#F97316",
-    "#EF4444",
-    "#9333EA",
-    "#14B8A6"
-];
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
+const cores = ["#2563eb", "#16a34a", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4"];
 
 function GraficoCategorias({ dados }) {
-
-    return (
-
-        <div
-            style={{
-                background:"#fff",
-                padding:"20px",
-                marginTop:"30px",
-                borderRadius:"12px",
-                boxShadow:"0 2px 10px rgba(0,0,0,.08)"
-            }}
-        >
-
-            <h2>Gastos por Categoria</h2>
-
-            <ResponsiveContainer
-                width="100%"
-                height={350}
-            >
-
-                <PieChart>
-
-                    <Pie
-                        data={dados}
-                        dataKey="total"
-                        nameKey="categoria"
-                        outerRadius={120}
-                    >
-
-                        {
-                            dados.map(
-                                (item,index)=>
-
-                                <Cell
-                                    key={index}
-                                    fill={
-                                        cores[
-                                            index %
-                                            cores.length
-                                        ]
-                                    }
-                                />
-                            )
-                        }
-
-                    </Pie>
-
-                    <Tooltip/>
-
-                    <Legend/>
-
-                </PieChart>
-
-            </ResponsiveContainer>
-
-        </div>
-
-    );
-
+  return (
+    <section className="chart-card">
+      <div className="section-heading"><div><h2>Gastos por categoria</h2><p>Distribuição das despesas</p></div></div>
+      <div className="chart-area">
+        {dados.length ? (
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie data={dados} dataKey="total" nameKey="categoria" innerRadius={58} outerRadius={92} paddingAngle={3}>
+                {dados.map((item, index) => <Cell key={`${item.categoria}-${index}`} fill={cores[index % cores.length]} />)}
+              </Pie>
+              <Tooltip formatter={(valor) => Number(valor).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} />
+              <Legend verticalAlign="bottom" />
+            </PieChart>
+          </ResponsiveContainer>
+        ) : <div className="empty-chart">Nenhuma despesa por categoria ainda.</div>}
+      </div>
+    </section>
+  );
 }
 
 export default GraficoCategorias;

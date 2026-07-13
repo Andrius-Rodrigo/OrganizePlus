@@ -1,100 +1,31 @@
 import { useEffect, useState } from "react";
+import { FaArrowTrendUp, FaArrowTrendDown, FaWallet } from "react-icons/fa6";
 import api from "../api/api";
-
-import Sidebar from "../components/Sidebar";
-import Header from "../components/Header";
 import CardResumo from "../components/CardResumo";
 import GraficoEvolucao from "../components/GraficoEvolucao";
 import GraficoCategorias from "../components/GraficoCategorias";
-
 import "../styles/dashboard.css";
 
-function Dashboard(){
+function Dashboard() {
+  const [dados, setDados] = useState({ saldo: 0, total_receitas: 0, total_despesas: 0 });
+  const [evolucao, setEvolucao] = useState([]);
+  const [categorias, setCategorias] = useState([]);
+  const [erro, setErro] = useState("");
 
-    const [dados,setDados] = useState(null);
-    const [evolucao,setEvolucao] = useState([]);
-    const [categorias,setCategorias] = useState([]);
+  useEffect(() => { carregarDashboard(); }, []);
+  async function carregarDashboard() {
+    try {
+      const [resumo, evolucaoResp, categoriasResp] = await Promise.all([api.get("/dashboard/resumo"), api.get("/dashboard/evolucao"), api.get("/dashboard/categorias")]);
+      setDados(resumo.data); setEvolucao(evolucaoResp.data); setCategorias(categoriasResp.data);
+    } catch { setErro("Não foi possível carregar o dashboard."); }
+  }
 
-    useEffect(()=>{
-
-        carregarDashboard();
-
-    },[]);
-
-
-    async function carregarDashboard(){
-
-        const resumo = await api.get("/dashboard/resumo");
-        const evolucao = await api.get("/dashboard/evolucao");
-        const categorias = await api.get("/dashboard/categorias");
-
-        setDados(resumo.data);
-        setEvolucao(evolucao.data);
-        setCategorias(categorias.data);
-
-    }
-
-
-    return(
-
-        <div>
-
-            <Sidebar />
-
-            <div className="dashboard">
-
-                <Header />
-
-                <h1>Dashboard Financeiro</h1>
-
-                {dados && (
-
-                    <>
-
-                        <div className="cards">
-
-                            <CardResumo
-                                titulo="Saldo"
-                                valor={dados.saldo}
-                                cor="#2563EB"
-                            />
-
-                            <CardResumo
-                                titulo="Receitas"
-                                valor={dados.total_receitas}
-                                cor="#16A34A"
-                            />
-
-                            <CardResumo
-                                titulo="Despesas"
-                                valor={dados.total_despesas}
-                                cor="#DC2626"
-                            />
-
-                        </div>
-
-                        <div className="graficos">
-
-                            <GraficoEvolucao
-                                dados={evolucao}
-                            />
-
-                            <GraficoCategorias
-                                dados={categorias}
-                            />
-
-                        </div>
-
-                    </>
-
-                )}
-
-            </div>
-
-        </div>
-
-    );
-
+  return (
+    <div className="dashboard-page">
+      {erro && <div className="feedback error">{erro}</div>}
+      <div className="cards-grid"><CardResumo titulo="Saldo atual" valor={dados.saldo} cor="#2563eb" icon={FaWallet} detalhe="Disponível" /><CardResumo titulo="Total de receitas" valor={dados.total_receitas} cor="#16a34a" icon={FaArrowTrendUp} detalhe="Entradas" /><CardResumo titulo="Total de despesas" valor={dados.total_despesas} cor="#ef4444" icon={FaArrowTrendDown} detalhe="Saídas" /></div>
+      <div className="charts-grid"><GraficoEvolucao dados={evolucao} /><GraficoCategorias dados={categorias} /></div>
+    </div>
+  );
 }
-
 export default Dashboard;

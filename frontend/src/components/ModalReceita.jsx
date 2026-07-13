@@ -1,136 +1,41 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { FaXmark } from "react-icons/fa6";
 import api from "../api/api";
+import "../styles/modal.css";
 
-function ModalReceita({ fechar, atualizar }) {
+function ModalReceita({ fechar, atualizar, receita }) {
+  const [form, setForm] = useState({ descricao: receita?.descricao || "", valor: receita?.valor || "", data: receita?.data || new Date().toISOString().slice(0, 10), categoria_id: receita?.categoria?.id || "" });
+  const [categorias, setCategorias] = useState([]);
+  const [salvando, setSalvando] = useState(false);
 
-    const [descricao, setDescricao] = useState("");
-    const [valor, setValor] = useState("");
-    const [data, setData] = useState("");
-    const [categorias, setCategorias] = useState([]);
-    const [categoriaId, setCategoriaId] = useState("");
+  useEffect(() => { api.get("/categorias").then((r) => setCategorias(r.data.filter((c) => c.tipo.toLowerCase() === "receita"))).catch(console.error); }, []);
 
-    useEffect(() => {
+  async function salvar(e) {
+    e.preventDefault();
+    if (!form.descricao.trim() || !form.valor || !form.data) return alert("Preencha descrição, valor e data.");
+    try {
+      setSalvando(true);
+      const dados = { ...form, valor: Number(form.valor), categoria_id: form.categoria_id ? Number(form.categoria_id) : null };
+      if (receita) await api.put(`/receitas/${receita.id}`, dados); else await api.post("/receitas", dados);
+      await atualizar();
+      fechar();
+    } catch (erro) { alert(erro.response?.data?.erro || "Erro ao salvar receita."); } finally { setSalvando(false); }
+  }
 
-        carregarCategorias();
-
-    }, []);
-
-    async function carregarCategorias() {
-
-        try {
-
-            const resposta = await api.get("/categorias");
-
-            setCategorias(resposta.data);
-
-        } catch (erro) {
-
-            console.log(erro);
-
-        }
-
-    }
-
-    async function salvar() {
-
-        try {
-
-            await api.post("/receitas", {
-
-                descricao,
-                valor: Number(valor),
-                data,
-                categoria_id: categoriaId || null
-
-            });
-
-            atualizar();
-
-            fechar();
-
-        } catch (erro) {
-
-            alert("Erro ao cadastrar receita.");
-
-        }
-
-    }
-
-    return (
-
-        <div className="modal">
-
-            <div className="modal-box">
-
-                <h2>Nova Receita</h2>
-
-                <input
-                    placeholder="Descrição"
-                    value={descricao}
-                    onChange={(e)=>setDescricao(e.target.value)}
-                />
-
-                <input
-                    type="number"
-                    placeholder="Valor"
-                    value={valor}
-                    onChange={(e)=>setValor(e.target.value)}
-                />
-
-                <input
-                    type="date"
-                    value={data}
-                    onChange={(e)=>setData(e.target.value)}
-                />
-
-                <select
-                    value={categoriaId}
-                    onChange={(e)=>setCategoriaId(e.target.value)}
-                >
-
-                    <option value="">
-                        Selecione uma categoria
-                    </option>
-
-                    {
-                        categorias.map(categoria => (
-
-                            <option
-                                key={categoria.id}
-                                value={categoria.id}
-                            >
-                                {categoria.nome}
-                            </option>
-
-                        ))
-                    }
-
-                </select>
-
-                <div className="acoes">
-
-                    <button
-                        onClick={salvar}
-                    >
-                        Salvar
-                    </button>
-
-                    <button
-                        onClick={fechar}
-                    >
-                        Cancelar
-                    </button>
-
-                    
-
-                </div>
-
-            </div>
-
+  return (
+    <div className="modal-backdrop" onMouseDown={(e) => e.target === e.currentTarget && fechar()}>
+      <form className="modal-box" onSubmit={salvar}>
+        <div className="modal-header"><div><h2>{receita ? "Editar receita" : "Nova receita"}</h2><p>Informe os dados da entrada financeira.</p></div><button type="button" onClick={fechar}><FaXmark /></button></div>
+        <label>Descrição<input placeholder="Ex.: Salário" value={form.descricao} onChange={(e) => setForm({ ...form, descricao: e.target.value })} /></label>
+        <div className="form-grid">
+          <label>Valor (R$)<input type="number" min="0.01" step="0.01" placeholder="0,00" value={form.valor} onChange={(e) => setForm({ ...form, valor: e.target.value })} /></label>
+          <label>Data<input type="date" value={form.data} onChange={(e) => setForm({ ...form, data: e.target.value })} /></label>
         </div>
-
-    );
-
+        <label>Categoria<select value={form.categoria_id} onChange={(e) => setForm({ ...form, categoria_id: e.target.value })}><option value="">Sem categoria</option>{categorias.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}</select></label>
+        <div className="modal-actions"><button type="button" className="btn-secondary" onClick={fechar}>Cancelar</button><button className="btn-primary" disabled={salvando}>{salvando ? "Salvando..." : "Salvar receita"}</button></div>
+      </form>
+    </div>
+  );
 }
 
 export default ModalReceita;

@@ -1,74 +1,44 @@
-import { Link } from "react-router-dom";
-import {
-    FaHome,
-    FaMoneyBillWave,
-    FaWallet,
-    FaTags,
-    FaUser,
-    FaSignOutAlt
-} from "react-icons/fa";
-
+import { NavLink, useNavigate } from "react-router-dom";
+import { FaChartPie, FaMoneyBillTrendUp, FaWallet, FaTags, FaUser, FaRightFromBracket, FaXmark, FaPiggyBank } from "react-icons/fa6";
 import "../styles/sidebar.css";
 
-function Sidebar() {
+const itens = [
+  { to: "/dashboard", label: "Dashboard", icon: FaChartPie },
+  { to: "/receitas", label: "Receitas", icon: FaMoneyBillTrendUp },
+  { to: "/despesas", label: "Despesas", icon: FaWallet },
+  { to: "/categorias", label: "Categorias", icon: FaTags },
+  { to: "/perfil", label: "Perfil", icon: FaUser },
+];
 
-    return (
+function Sidebar({ aberto, fechar }) {
+  const navigate = useNavigate();
 
-        <div className="sidebar">
+  function sair() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("usuario_id");
+    localStorage.removeItem("usuario_email");
+    navigate("/");
+  }
 
-            <h2 className="logo">
-                Organize+
-            </h2>
-
-            <nav>
-
-                <Link to="/dashboard">
-                    <FaHome />
-                    Dashboard
-                </Link>
-
-                <Link to="/receitas">
-                    <FaMoneyBillWave />
-                    Receitas
-                </Link>
-
-                <Link to="/despesas">
-                    <FaWallet />
-                    Despesas
-                </Link>
-
-                <Link to="/categorias">
-                    <FaTags />
-                    Categorias
-                </Link>
-
-                <Link to="/perfil">
-                    <FaUser />
-                    Perfil
-                </Link>
-
-            </nav>
-
-            <button
-                className="logout"
-                onClick={() => {
-
-                    localStorage.removeItem("token");
-                    window.location.href="/";
-
-                }}
-            >
-
-                <FaSignOutAlt />
-
-                Sair
-
-            </button>
-
+  return (
+    <aside className={`sidebar ${aberto ? "sidebar-open" : ""}`}>
+      <div>
+        <div className="sidebar-brand">
+          <div className="brand-mark"><FaPiggyBank /></div>
+          <div><strong>Organize+</strong><span>Finanças pessoais</span></div>
+          <button className="sidebar-close" onClick={fechar}><FaXmark /></button>
         </div>
-
-    );
-
+        <nav className="sidebar-nav">
+          {itens.map(({ to, label, icon: Icon }) => (
+            <NavLink key={to} to={to} onClick={fechar} className={({ isActive }) => isActive ? "active" : ""}>
+              <Icon /><span>{label}</span>
+            </NavLink>
+          ))}
+        </nav>
+      </div>
+      <button className="logout" onClick={sair}><FaRightFromBracket /> Sair da conta</button>
+    </aside>
+  );
 }
 
 export default Sidebar;

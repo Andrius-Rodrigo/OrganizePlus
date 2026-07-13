@@ -1,0 +1,2 @@
+.app-shell { min-height: 100vh; background: #f5f7fb; }.app-content { margin-left: 260px; min-height: 100vh; }.page-content { padding: 28px 32px 40px; }.sidebar-overlay { display: none; }
+@media (max-width: 900px) { .app-content { margin-left: 0; }.page-content { padding: 22px 18px 32px; }.sidebar-overlay { display: block; position: fixed; inset: 0; z-index: 89; border: 0; background: rgba(15,23,42,.45); } }
