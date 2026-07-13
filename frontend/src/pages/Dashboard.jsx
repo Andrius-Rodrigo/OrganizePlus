@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../api/api";
+import Sidebar from "../components/Sidebar";
+
 
 
 function Dashboard(){
@@ -41,17 +43,19 @@ function Dashboard(){
 
     return(
 
-        <div>
+    <div style={{display:"flex"}}>
 
-            <h1>
-                Organize+
-            </h1>
+        <Sidebar />
 
+        <div
+            style={{
+                marginLeft:"260px",
+                padding:"30px",
+                width:"100%"
+            }}
+        >
 
-            <h2>
-                Dashboard Financeiro
-            </h2>
-
+            <h1>Dashboard Financeiro</h1>
 
             {
                 dados && (
@@ -59,34 +63,26 @@ function Dashboard(){
                     <div>
 
                         <h3>
-                            Saldo:
-                            R$ {dados.saldo}
+                            Saldo: R$ {dados.saldo}
                         </h3>
 
-
                         <p>
-                            Receitas:
-                            R$ {dados.total_receitas}
+                            Receitas: R$ {dados.total_receitas}
                         </p>
 
-
                         <p>
-                            Despesas:
-                            R$ {dados.total_despesas}
+                            Despesas: R$ {dados.total_despesas}
                         </p>
-
 
                     </div>
 
                 )
             }
 
-
         </div>
 
-    )
+    </div>
 
+    );
 }
-
-
 export default Dashboard;
