@@ -21,7 +21,7 @@ function App() {
                 <Route path="/despesas" element={<Despesas />} />
                 <Route path="/categorias" element={<Categorias />} />
                 <Route path="/perfil" element={<Perfil />} />
-
+                
             </Routes>
 
         </BrowserRouter>
